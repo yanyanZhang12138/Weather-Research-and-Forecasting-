@@ -1,4 +1,4 @@
-Task a:Compile WPS on Scholar
+Task a:Compile WPS
 
 build serial WPS using Intel compiler 
 
