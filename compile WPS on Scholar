@@ -1,0 +1,88 @@
+Task a:Compile WPS on Scholar
+
+build serial WPS using Intel compiler 
+
+Tips: we use GRIB2 data and need the following libraries: JasPer, libPNG, and Zlib. Some of these libraries may be available on Scholar already. 
+a
+Please download WPS 3.9.1 from UCAR website and compile it on Scholar.
+http://www2.mmm.ucar.edu/wrf/users/download/get_source.html
+
+For step-by-step instructions, please read the online instruction:
+http://www2.mmm.ucar.edu/wlsrf/OnLineTutorial/
+
+
+Pre-processing
+
+Task: Pre-process the raw data and get ready for wrf run
+
+Inside the top-level directory of WPS suite,
+
+•	Link to NAM grib files
+./link_grib.csh /directory/nam
+
+•	make sure you have Vtable and namelist.input, make updates if needed.
+
+•	Prepare a job script to run the pre-processing steps in the scholar queue.
+1.	Run geogrid.exe
+2.	Run ungrib.exe
+3.	Run metgrid.exe 
+After the job is done, you will find the log file for each step as well as the several netcdf files (.nc files)
+
+scripts for running wps:
+#!/bin/sh -l
+#PBS -q yourwueuename
+#PBS -l nodes=1:ppn=20:walltime=30:00
+#PBS -N wps_pre-processing
+#PBS -m abe
+#PBS -M *YOUREMAILADDRESS*
+
+module load netcdf
+module load hdf5
+module load intel
+
+NP=$PBS_NP
+cd *yourcurrentpath*
+
+./geogrid.exe >& log.geogrid
+./ungrib.exe >& log.ungrib
+./metgrid.exe >& log.metgrid
+
+after running, the *.exe files, log.* files FILE:* files and *.nc files should be generated.
+
+Task b: WRF runs
+WRF runs
+
+Task: Perform weather modeling with wrf for real data
+Cd ..
+Inside of the top-level directory of WRF suite
+
+•	Copy the existing run directory to a new location, for example: cp -a run run_20190219
+•	Copy the netcdf files from the pre-processing step 
+• Make sure you update namelist.input is needed.
+
+•	Prepare a job script to run weather modeling in parallel with two nodes in scholar queue.
+1.	Run real.exe
+2.	Run wrf.exe
+
+script for running real.exe and wrf.exe
+#!/bin/sh -l
+#PBS -q *yourqueuename*
+#PBS -l nodes=2:ppn=20,walltime=04:00:00
+#PBS -N wrfjob
+#PBS -m abe
+#PBS -M *YOUREMAIL*
+
+
+module load intel/17.0.1.132
+module load impi/2017.1.132
+module load netcdf/4.5.0
+
+NP=$PBS_NP
+cd *yourcurrentdirectory8
+
+mpirun -np $NP./real.exe
+mpirun -np $NP ./wrf.exe
+
+after running, rsl.error* files, rsl.out.* files and wrfout files files should be generated.
+It takes around three hours to run.
+
