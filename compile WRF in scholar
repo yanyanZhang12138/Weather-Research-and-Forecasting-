@@ -1,0 +1,57 @@
+Task a: build a distributed memory parallel WRF executable using intel compiler and intel MPI library.
+
+Please download WRFV3.9.1 from UCAR website and compile it on your cluster.
+http://www2.mmm.ucar.edu/wrf/users/download/get_source.html
+
+For step-by-step instructions, please read the online instructions:
+http://www2.mmm.ucar.edu/wrf/OnLineTutorial/
+
+TIP: Some dependencies may be available as modules on scholar.
+Information on modules can be found in the Scholar User Guide.
+https://www.rcac.purdue.edu/knowledge/scholar/app/module
+
+Installing, compiling and configuring WRF is mainly following the step-bystep instructions, but after ./configure, If you have 
+Intel MPI installed and wish to use instead,remember to make changes as following: DM_FC  = mpiifort DM_CC  = mpiicc. And when ./compile,
+choose em_real data.
+
+Task b: CONUS 12km test 
+Copy the existing run directory to a new location, for example: cp -a run run_CONUS
+Download a CONUS test input data files from http://www2.mmm.ucar.edu/BENCH/12km/
+Execute the test problem using the WRF executable in the run_CONUS directory with 4 cores and 20 cores. Please create a new directory for each run. 
+
+script for running 4 cores:
+#!/bin/sh -l
+#PBS -q *myqueuename*
+#PBS -l nodes=1:ppn=4,walltime=04:00:00
+#PBS -N wrfjob
+#PBS -m abe
+#PBS -M *YOUR EMAIL ADDRESS*
+
+module purge
+module load rcac
+module load netcdf/4.5.0
+module load intel/17.0.1.132
+module load impi/2017.1.132
+
+NP=$PBS_NP
+
+mpirun -np $NP ./wrf.exe
+
+script for running 20 cores:
+
+#!/bin/sh -l
+#PBS -q *myqueuename*
+#PBS -l nodes=1:ppn=20,walltime=04:00:00
+#PBS -N wrfjob
+#PBS -m abe
+#PBS -M *YOUR EMAIL ADDRESS*
+
+module purge
+module load rcac
+module load netcdf/4.5.0
+module load intel/17.0.1.132
+module load impi/2017.1.132
+
+NP=$PBS_NP
+
+mpirun -np $NP ./wrf.exe
